@@ -30,9 +30,11 @@
 <script>
     let form = document.getElementById('form')
     let btn = document.getElementById("btn")
+    let state = false;
+    let currentid = null;
+    let arr = []
 
     async function postData() {
-     
         let obj = {
             name: document.getElementById('name').value,
             description: document.getElementById('description').value,
@@ -40,17 +42,17 @@
         };
         try {
             let res = await axios.post("https://json-render-server-2.onrender.com/user", obj)
-            console.log(res)
-            } catch (error) {
+            // console.log(res)
+        } catch (error) {
             console.log(error)
         }
     }
-
     async function getData() {
         try {
             let res = await axios.get("https://json-render-server-2.onrender.com/user")
-            console.log(res.data)
-            displayData(res.data)
+            arr = res.data
+            console.log(arr)
+            displayData(arr)
         } catch (error) {
             console.log(error)
         }
@@ -60,15 +62,12 @@
     async function delData(id) {
         try {
             let res = await axios.delete(`https://json-render-server-2.onrender.com/user/${id}`)
-            console.log(res)
-            // displayData(res.data)
+            getData()
         } catch (error) {
             console.log(error)
         }
     };
     // ----------------------------------edit data function---------------------//
-    let state=false;
-    let currentid=null;
 
     function getDataforEdit(data) {
         let obj = {
@@ -76,35 +75,43 @@
             description: (document.getElementById('description').value = data.description),
             img: (document.getElementById('img').value = data.img)
         }
-        btn.innerText="update";
-        state=true;
-        currentid=data.id;
+        btn.innerText = "update";
+        state = true;
+        currentid = data.id;
+        console.log(state,currentid)
     }
-    async function updateData() {
-        let updateobj={
+ async function updateData() {
+        let updateobj = {
             name: document.getElementById('name').value,
             description: document.getElementById('description').value,
             img: document.getElementById('img').value,
 
-        }
+        };
         try {
-            let res = await axios.patch(`https://json-render-server-2.onrender.com/user/${currentid}`, updateobj)
+            let res = await  axios.patch(`https://json-render-server-2.onrender.com/user/${currentid}`, updateobj);
             alert('updated');
-            state=false;
-        }
+            getData()
+            displayData(arr)
+            form.reset()
+            console.log(res);
+             }
         catch (error) {
             console.log(error)
-            }
-            }
-            btn.addEventListener("click",()=>{
-                if(state===true){
-                    updateData();
-                    }
-                    else{
-                        postData();
-                        }
-            })
-            
+        }
+    }
+    
+    btn.addEventListener("click", (e) => {
+        e.preventDefault()
+        if (state===true) {
+            updateData();
+        
+
+        }
+        else {
+            postData();
+        }
+    })
+
 
     let div = document.getElementById('display');
 
@@ -122,7 +129,7 @@
             let edit = document.createElement('btn')
             edit.innerText = "edit"
             edit.addEventListener("click", () => {
-                getDataforEdit(ele)
+                getDataforEdit(ele);
             })
 
             let del = document.createElement('btn')
@@ -131,7 +138,7 @@
                 delData(ele.id);
                 alert("deleted");
 
-            })
+            });
             divbtn.append(edit, del)
             del.style.backgroundColor = "red"
             cont.append(img, name, description, divbtn)
@@ -140,7 +147,7 @@
         })
     }
 
-    displayData()
+    displayData(arr)
 
 </script>
 
